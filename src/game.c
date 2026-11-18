@@ -5,17 +5,8 @@
 #include <time.h>
 
 
-// Internal coordinate definition
-typedef struct Coordinate {
-    uint8_t row;
-    uint8_t col;
-} Coordinate;
-
-
 // --- MINEFIELD ---
 // Helpers
-uint32_t _coordinateToIndex(const MineField*, const Coordinate);
-Coordinate _indexToCoordinate(const MineField*, const uint32_t);
 bool _coordinateInBounds(const MineField*, const Coordinate);
 uint8_t _countSurroundingMines(const MineField*, const uint8_t);
 void _exploreSurroundingSquares(const MineField*, const Coordinate);
@@ -39,7 +30,7 @@ MineField* createMineField(const uint8_t width, const uint8_t height, const floa
 
     for (int i = 0; i < area; ++i) {
         MineSquare currentSquare = (MineSquare) {
-            .hasMine=((float) rand() / (float) RAND_MAX) > mineDensity,
+            .hasMine=((float) rand() / (float) RAND_MAX) < mineDensity,
             .hasBeenExplored=false,
             .minesSurroundingCount=0,
         };
@@ -71,7 +62,7 @@ GameResponse exploreSquare(MineField* minefield, const uint8_t row, const uint8_
         .row=row,
         .col=col,
     };
-    const uint8_t index = _coordinateToIndex(minefield, coordinate);
+    const uint8_t index = coordinateToIndex(minefield, coordinate);
 
     const GameResponse moveFailure = (GameResponse) {
         .gameOver=false,
@@ -129,7 +120,7 @@ bool toggleMineFlagAndCheckForWin(MineField* minefield, const uint8_t row, const
         .row=row,
         .col=col,
     };
-    uint8_t index = _coordinateToIndex(minefield, coordinate);
+    uint8_t index = coordinateToIndex(minefield, coordinate);
 
     if (minefield->fieldData[index].markedWithFlag) {
         minefield->fieldData[index].markedWithFlag = false;
@@ -155,26 +146,13 @@ bool toggleMineFlagAndCheckForWin(MineField* minefield, const uint8_t row, const
 
 
 // Helpers
-uint32_t _coordinateToIndex(const MineField* minefield, const Coordinate coordinate) {
-    return coordinate.row * minefield->width + coordinate.col;
-}
-
-
-Coordinate _indexToCoordinate(const MineField* minefield, const uint32_t index) {
-    return (Coordinate) {
-        .row=index / minefield->width,
-        .col=index % minefield->width,
-    };
-}
-
-
 bool _coordinateInBounds(const MineField* minefield, const Coordinate coordinate) {
     return coordinate.row >= 0 && coordinate.row < minefield->height && coordinate.col >= 0 && coordinate.col < minefield->width;
 }
 
 
 uint8_t _countSurroundingMines(const MineField* minefield, const uint8_t index) {
-    Coordinate currentCoordinate = _indexToCoordinate(minefield, index);
+    Coordinate currentCoordinate = indexToCoordinate(minefield, index);
 
     const int directions[3] = {-1, 0, 1};
 
@@ -194,7 +172,7 @@ uint8_t _countSurroundingMines(const MineField* minefield, const uint8_t index) 
             };
 
             if (_coordinateInBounds(minefield, newCoordinate)) {
-                if (minefield->fieldData[_coordinateToIndex(minefield, newCoordinate)].hasMine) {
+                if (minefield->fieldData[coordinateToIndex(minefield, newCoordinate)].hasMine) {
                     totalMines++;
                 }
             }
@@ -224,7 +202,28 @@ void _exploreSurroundingSquares(const MineField* minefield, const Coordinate coo
 
 
 void __recursiveExplore(const MineField* minefield, const Coordinate coordinate) {
+    const uint32_t index = coordinateToIndex(minefield, coordinate);
+
+    MineSquare currentSquare = minefield->fieldData[index];
+
+    if (currentSquare.hasMine || currentSquare.hasBeenExplored) {
+        return;
+    }
+
+    minefield->fieldData[index].hasBeenExplored = true;
+
+    if (currentSquare.minesSurroundingCount > 0) {
+        return;
+    }
+
     const int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
+    for (int i = 0; i < 4; ++i) {
+        const int* direction = directions[i];
 
+        Coordinate newCoordinate = (Coordinate) {
+            .row=coordinate.row + direction[0],
+            .col=coordinate.col + direction[1],
+        };
+    }
 }

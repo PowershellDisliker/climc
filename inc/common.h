@@ -20,3 +20,13 @@ typedef struct MineField {
     uint8_t flagsUsed;
     MineSquare* fieldData;
 } MineField;
+
+
+typedef struct Coordinate {
+    uint8_t row;
+    uint8_t col;
+} Coordinate;
+
+
+uint32_t coordinateToIndex(const MineField*, const Coordinate);
+Coordinate indexToCoordinate(const MineField*, const uint32_t);

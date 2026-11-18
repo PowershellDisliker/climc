@@ -13,7 +13,7 @@ SRCS=$(SRC_NAMES:%=$(SRC_DIR)%.c)
 OBJS=$(SRC_NAMES:%=$(OBJ_DIR)%.o)
 
 $(APP_NAME): $(OBJ_DIR) $(BIN_DIR) $(OBJS)
-	$(CC) -I$(INC_DIR) $(OBJ_DIR)/* -o $(BIN_DIR)$(APP_NAME)
+	$(CC) -I$(INC_DIR) -g $(OBJ_DIR)* -o $(BIN_DIR)$(APP_NAME)
 
 $(OBJ_DIR)%.o: $(SRC_DIR)%.c
 	$(CC) -I$(INC_DIR) -c $< -o $@
