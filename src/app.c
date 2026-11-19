@@ -1,5 +1,5 @@
 /*
-Minesweeper clone
+CLI Minesweeper Clone (CLIMC)
 
 Author: Ryley Turner
 */
@@ -34,31 +34,14 @@ int main(int argc, char* argv[]) {
     char inputBuffer[BUFFER_SIZE];
 
     while (!recentResponse.gameOver) {
-        printBoard(minefield);
+        renderFrame(minefield);
 
-        char mode = '0';
-        uint8_t userRow, userCol = 0;
+        UserInput input = getInput();
 
-        while (true) {
-            printf("> \n");
 
-            if (fgets(inputBuffer, BUFFER_SIZE, stdin) != NULL) {
-                if (sscanf(inputBuffer, "%c %hhu %hhu", &mode, &userRow, &userCol) == 3) {
-                    break;
-                }
-            }
-        }
-
-        if (mode == 'x') {
-            recentResponse = exploreSquare(minefield, userRow, userCol);
-        } else if (mode == 'f') {
-            toggleMineFlagAndCheckForWin(minefield, userRow, userCol);
-        } else {
-            printf("Mode not recognized\n");
-        }
     }
 
-    printBoard(minefield);
+    renderFrame(minefield);
     destroyMinefield(minefield);
 
     return 0;

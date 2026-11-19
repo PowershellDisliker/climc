@@ -18,4 +18,4 @@ void destroyMinefield(MineField*);
 
 // Logic
 GameResponse exploreSquare(MineField*, const uint8_t, const uint8_t);
-bool toggleMineFlagAndCheckForWin(MineField*, const uint8_t, const uint8_t);
+GameResponse toggleMineFlagAndCheckForWin(MineField*, const uint8_t, const uint8_t);

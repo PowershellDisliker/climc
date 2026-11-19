@@ -2,6 +2,7 @@
 #include "../inc/common.h"
 
 #include <stdio.h>
+#include <termios.h>
 
 
 void printBoard(const MineField* minefield) {

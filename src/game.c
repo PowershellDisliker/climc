@@ -39,6 +39,7 @@ MineField* createMineField(const uint8_t width, const uint8_t height, const floa
             newMineField->totalMines++;
         }
 
+        // bad... probably. lots of memcpys
         memcpy(&newMineField->fieldData[i], &currentSquare, sizeof(currentSquare));
     }
 
@@ -109,18 +110,33 @@ GameResponse exploreSquare(MineField* minefield, const uint8_t row, const uint8_
         return hitMine;
     }
 
-    _exploreSurroundingSquares(minefield, coordinate);
+    if (selectedSquare.minesSurroundingCount == 0) {
+        _exploreSurroundingSquares(minefield, coordinate);
+    }
 
     return moveSuccess;
 }
 
 
-bool toggleMineFlagAndCheckForWin(MineField* minefield, const uint8_t row, const uint8_t col) {
-    Coordinate coordinate = (Coordinate) {
+GameResponse toggleMineFlagAndCheckForWin(MineField* minefield, const uint8_t row, const uint8_t col) {
+    const GameResponse winResponse = (GameResponse) {
+        .gameOver=false,
+        .gameWon=true,
+        .moveSuccess=true,
+    };
+
+    const GameResponse inertResponse = (GameResponse) {
+        .gameOver=false,
+        .gameWon=false,
+        .moveSuccess=true,
+    };
+
+    const Coordinate coordinate = (Coordinate) {
         .row=row,
         .col=col,
     };
-    uint8_t index = coordinateToIndex(minefield, coordinate);
+
+    const uint8_t index = coordinateToIndex(minefield, coordinate);
 
     if (minefield->fieldData[index].markedWithFlag) {
         minefield->fieldData[index].markedWithFlag = false;
@@ -135,13 +151,14 @@ bool toggleMineFlagAndCheckForWin(MineField* minefield, const uint8_t row, const
             const MineSquare currentSquare = minefield->fieldData[i];
 
             if (currentSquare.hasMine != currentSquare.markedWithFlag) {
-                return false;
+                return inertResponse;
             }
         }
-        return true;
+
+        return winResponse;
     }
 
-    return false;
+    return inertResponse;
 }
 
 
@@ -225,5 +242,9 @@ void __recursiveExplore(const MineField* minefield, const Coordinate coordinate)
             .row=coordinate.row + direction[0],
             .col=coordinate.col + direction[1],
         };
+
+        if (_coordinateInBounds(minefield, newCoordinate)) {
+            __recursiveExplore(minefield, newCoordinate);
+        }
     }
 }

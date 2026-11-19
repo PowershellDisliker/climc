@@ -3,4 +3,10 @@
 #include "common.h"
 
 
-void printBoard(const MineField*);
+typedef struct UserInput {
+
+} UserInput;
+
+
+void renderFrame(const MineField*);
+UserInput getInput();
