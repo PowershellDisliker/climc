@@ -4,9 +4,9 @@
 
 
 typedef struct GameResponse {
-    const bool moveSuccess;
-    const bool gameOver;
-    const bool gameWon;
+    bool moveSuccess;
+    bool gameOver;
+    bool gameWon;
 } GameResponse;
 
 

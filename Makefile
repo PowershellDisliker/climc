@@ -7,7 +7,7 @@ SRC_DIR=./src/
 OBJ_DIR=./obj/
 BIN_DIR=./bin/
 
-SRC_NAMES=app game visual
+SRC_NAMES=app game visual common
 
 SRCS=$(SRC_NAMES:%=$(SRC_DIR)%.c)
 OBJS=$(SRC_NAMES:%=$(OBJ_DIR)%.o)
