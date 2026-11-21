@@ -1,4 +1,4 @@
-#include "../inc/common.h"
+#include <common.h>
 
 
 uint32_t coordinateToIndex(const MineField* minefield, const Coordinate coordinate) {

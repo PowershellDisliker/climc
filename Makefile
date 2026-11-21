@@ -1,4 +1,4 @@
-CC=gcc
+CC=clang
 
 APP_NAME=minesweeper
 
@@ -11,6 +11,7 @@ SRC_NAMES=app game visual common
 
 SRCS=$(SRC_NAMES:%=$(SRC_DIR)%.c)
 OBJS=$(SRC_NAMES:%=$(OBJ_DIR)%.o)
+
 
 $(APP_NAME): $(OBJ_DIR) $(BIN_DIR) $(OBJS)
 	$(CC) -I$(INC_DIR) -g $(OBJ_DIR)* -o $(BIN_DIR)$(APP_NAME)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include <common.h>
 
 
 typedef struct GameResponse {
@@ -17,5 +17,4 @@ void destroyMinefield(MineField*);
 
 
 // Logic
-GameResponse exploreSquare(MineField*, const uint8_t, const uint8_t);
-GameResponse toggleMineFlagAndCheckForWin(MineField*, const uint8_t, const uint8_t);
+GameResponse performAction(MineField*, UserInput);

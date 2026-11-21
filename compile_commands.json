@@ -1,0 +1,54 @@
+[
+  {
+    "file": "src/app.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./inc/",
+      "-c",
+      "src/app.c",
+      "-o",
+      "obj/app.o"
+    ],
+    "directory": "/home/ryley/Projects/mine-sweeper",
+    "output": "obj/app.o"
+  },
+  {
+    "file": "src/game.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./inc/",
+      "-c",
+      "src/game.c",
+      "-o",
+      "obj/game.o"
+    ],
+    "directory": "/home/ryley/Projects/mine-sweeper",
+    "output": "obj/game.o"
+  },
+  {
+    "file": "src/visual.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./inc/",
+      "-c",
+      "src/visual.c",
+      "-o",
+      "obj/visual.o"
+    ],
+    "directory": "/home/ryley/Projects/mine-sweeper",
+    "output": "obj/visual.o"
+  },
+  {
+    "file": "src/common.c",
+    "arguments": [
+      "/usr/bin/clang",
+      "-I./inc/",
+      "-c",
+      "src/common.c",
+      "-o",
+      "obj/common.o"
+    ],
+    "directory": "/home/ryley/Projects/mine-sweeper",
+    "output": "obj/common.o"
+  }
+]

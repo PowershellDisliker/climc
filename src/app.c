@@ -4,9 +4,8 @@ CLI Minesweeper Clone (CLIMC)
 Author: Ryley Turner
 */
 
-#include "../inc/game.h"
-#include "../inc/visual.h"
-
+#include <game.h>
+#include <visual.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -38,7 +37,7 @@ int main(int argc, char* argv[]) {
 
         UserInput input = getInput();
 
-
+        recentResponse = performAction(minefield, input);
     }
 
     renderFrame(minefield);

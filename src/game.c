@@ -1,4 +1,5 @@
-#include "../inc/game.h"
+#include <common.h>
+#include <game.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -7,8 +8,12 @@
 
 // --- MINEFIELD ---
 // Helpers
+GameResponse _toggleFlag(MineField*);
+GameResponse _explore(MineField*);
+
 bool _coordinateInBounds(const MineField*, const Coordinate);
 uint8_t _countSurroundingMines(const MineField*, const uint8_t);
+
 void _exploreSurroundingSquares(const MineField*, const Coordinate);
 void __recursiveExplore(const MineField*, const Coordinate);
 
@@ -23,6 +28,7 @@ MineField* createMineField(const uint8_t width, const uint8_t height, const floa
 
     newMineField->width = width;
     newMineField->height = height;
+    newMineField->selectedSquare = (Coordinate) {.row=0, .col=0};
     newMineField->mineDensity = mineDensity;
     newMineField->totalMines = 0;
 
@@ -58,11 +64,74 @@ void destroyMinefield(MineField* field) {
 
 
 // Logic
-GameResponse exploreSquare(MineField* minefield, const uint8_t row, const uint8_t col) {
-    const Coordinate coordinate = (Coordinate) {
-        .row=row,
-        .col=col,
+GameResponse performAction(MineField* minefield, UserInput input) {
+    const Coordinate current = minefield->selectedSquare;
+    
+    switch (input) {
+        case UP:
+            if (current.row < 0) {
+                minefield->selectedSquare = (Coordinate) {.row=minefield->height - 1, .col=current.col};
+                break;
+            }
+
+            minefield->selectedSquare = (Coordinate) {.row=current.row - 1, .col=current.col};
+            break;
+
+        case DOWN:
+            if (current.row >= minefield->height) {
+                minefield->selectedSquare = (Coordinate) {.row=0, .col=current.col};
+                break;
+            }
+
+            minefield->selectedSquare = (Coordinate) {.row=current.row + 1, .col=current.col};
+            break;
+
+        case LEFT:
+            if (current.col < 0) {
+                minefield->selectedSquare = (Coordinate) {.row=current.row, .col=minefield->width - 1};
+                break;
+            }
+
+            minefield->selectedSquare = (Coordinate) {.row=current.row, .col=current.col - 1};
+            break;
+
+        case RIGHT:
+            if (current.row >= minefield->width) {
+                minefield->selectedSquare = (Coordinate) {.row=current.row, .col=0};
+                break;
+            }
+
+            minefield->selectedSquare = (Coordinate) {.row=current.row, .col=current.col + 1};
+            break;
+
+        case TOGGLE_FLAG:
+            _toggleFlag(minefield);
+            break;
+
+        case EXPLORE:
+            _explore(minefield);
+            break;
+
+        case QUIT:
+            return (GameResponse) {
+                .gameOver=true,
+                .gameWon=false,
+                .moveSuccess=false,
+            };
+
+            break;
+    }
+
+    return (GameResponse) {
+        .gameOver=false,
+        .gameWon=false,
+        .moveSuccess=true,
     };
+}
+
+
+GameResponse _explore(MineField* minefield) {
+    const Coordinate coordinate = minefield->selectedSquare;
     const uint8_t index = coordinateToIndex(minefield, coordinate);
 
     const GameResponse moveFailure = (GameResponse) {
@@ -118,7 +187,7 @@ GameResponse exploreSquare(MineField* minefield, const uint8_t row, const uint8_
 }
 
 
-GameResponse toggleMineFlagAndCheckForWin(MineField* minefield, const uint8_t row, const uint8_t col) {
+GameResponse _toggleFlag(MineField* minefield) {
     const GameResponse winResponse = (GameResponse) {
         .gameOver=false,
         .gameWon=true,
@@ -131,11 +200,7 @@ GameResponse toggleMineFlagAndCheckForWin(MineField* minefield, const uint8_t ro
         .moveSuccess=true,
     };
 
-    const Coordinate coordinate = (Coordinate) {
-        .row=row,
-        .col=col,
-    };
-
+    const Coordinate coordinate = minefield->selectedSquare;
     const uint8_t index = coordinateToIndex(minefield, coordinate);
 
     if (minefield->fieldData[index].markedWithFlag) {

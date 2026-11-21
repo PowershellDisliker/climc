@@ -1,12 +1,7 @@
 #pragma once
 
-#include "common.h"
-
-
-typedef struct UserInput {
-
-} UserInput;
+#include <common.h>
 
 
 void renderFrame(const MineField*);
-UserInput getInput();
+UserInput getInput(void);
