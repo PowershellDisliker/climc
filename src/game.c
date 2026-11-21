@@ -189,7 +189,7 @@ GameResponse _explore(MineField* minefield) {
 
 GameResponse _toggleFlag(MineField* minefield) {
     const GameResponse winResponse = (GameResponse) {
-        .gameOver=false,
+        .gameOver=true,
         .gameWon=true,
         .moveSuccess=true,
     };

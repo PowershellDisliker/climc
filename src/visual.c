@@ -86,14 +86,14 @@ void _renderCell(const MineField* minefield, const int row, const int col) {
         const int colorIndex = (row + col) % 2;
         
         if (colorIndex == 0) {
-            _setBackgroundColor(150, 150, 150);
+            _setBackgroundColor(140, 140, 140);
         
         } else {
             _setBackgroundColor(160, 160, 160);
         }
 
     } else {
-        _setBackgroundColor(50, 50, 50);
+        _setBackgroundColor(120, 120, 120);
     }
 
     Coordinate highlightedSquare = minefield->selectedSquare;
@@ -144,5 +144,5 @@ void __printCell(const MineSquare square) {
     }
 
     _setForegroundColor(10, 10, 10);
-    printf("%hhu", square.minesSurroundingCount);
+    printf(" %hhu ", square.minesSurroundingCount);
 }
