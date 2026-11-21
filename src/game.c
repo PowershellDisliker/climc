@@ -105,11 +105,11 @@ GameResponse performAction(MineField* minefield, UserInput input) {
             break;
 
         case TOGGLE_FLAG:
-            _toggleFlag(minefield);
+            return _toggleFlag(minefield);
             break;
 
         case EXPLORE:
-            _explore(minefield);
+            return _explore(minefield);
             break;
 
         case QUIT:

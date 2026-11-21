@@ -30,39 +30,41 @@ void renderFrame(const MineField* minefield) {
 
 
 UserInput getInput(void) {
-    char inputBuffer[32];  
-    fgets(inputBuffer, 32, stdin);
+    char inputBuffer[32];
 
-    if (strcmp(inputBuffer, "UP\n") == 0) {
-        return UP;
+    while (true) {
+        fgets(inputBuffer, 32, stdin);
+    
+        if (strcmp(inputBuffer, "UP\n") == 0) {
+            return UP;
+        }
+    
+        if (strcmp(inputBuffer, "DOWN\n") == 0) {
+            return DOWN;
+        }
+    
+        if (strcmp(inputBuffer, "LEFT\n") == 0) {
+            return LEFT;
+        }
+    
+        if (strcmp(inputBuffer, "RIGHT\n") == 0) {
+            return RIGHT;
+        }
+    
+        if (strcmp(inputBuffer, "EXPLORE\n") == 0) {
+            return EXPLORE;
+        }
+    
+        if (strcmp(inputBuffer, "TOGGLE_FLAG\n") == 0) {
+            return TOGGLE_FLAG;
+        }
+    
+        if (strcmp(inputBuffer, "QUIT\n") == 0) {
+            return QUIT;
+        }
+    
+        printf("Unknown Command\n");
     }
-
-    if (strcmp(inputBuffer, "DOWN\n") == 0) {
-        return DOWN;
-    }
-
-    if (strcmp(inputBuffer, "LEFT\n") == 0) {
-        return LEFT;
-    }
-
-    if (strcmp(inputBuffer, "RIGHT\n") == 0) {
-        return RIGHT;
-    }
-
-    if (strcmp(inputBuffer, "EXPLORE\n") == 0) {
-        return EXPLORE;
-    }
-
-    if (strcmp(inputBuffer, "TOGGLE_FLAG\n") == 0) {
-        return TOGGLE_FLAG;
-    }
-
-    if (strcmp(inputBuffer, "QUIT\n") == 0) {
-        return QUIT;
-    }
-
-    printf("Unknown Command!!!\n");
-    return QUIT;
 }
 
 
@@ -72,6 +74,7 @@ void _renderRow(const MineField* minefield, const int row) {
         _renderCell(minefield, row, col);
     }
 
+    _clearFormatting();
     printf("\n");
 }
 
@@ -121,22 +124,25 @@ void _clearFormatting(void) {
 void __printCell(const MineSquare square) {
     if (square.markedWithFlag) {
         _setForegroundColor(0, 255, 0);
-        printf("F");
+        printf(" F ");
 
         return;
     }
 
     if (!square.hasBeenExplored) {
         _setForegroundColor(0, 0, 0);
-        printf(" ");
+        printf("   ");
 
         return;
     }
     
     if (square.hasMine) {
         _setForegroundColor(255, 0, 0);
-        printf("X");
+        printf(" X ");
 
         return;
     }
+
+    _setForegroundColor(10, 10, 10);
+    printf("%hhu", square.minesSurroundingCount);
 }
