@@ -6,23 +6,33 @@ Author: Ryley Turner
 
 #include <game.h>
 #include <visual.h>
+
+
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #define BUFFER_SIZE 128
 
+typedef struct Arguments {
+    uint8_t width;
+    uint8_t height;
+    float mineDensity;
+} Arguments;
+
+
+bool _validateArguments(int, char**);
+Arguments _getArguments(int, char**);
+
 
 int main(int argc, char* argv[]) {
-    if (argc != 4) {
-        printf("Usage: minesweeper <width> <height> <mine density>\n");
+    if (!_validateArguments(argc, argv)) {
         return 1;
     }
 
-    uint8_t width = atoi(argv[1]);
-    uint8_t height = atoi(argv[2]);
-    float mineDensity = atof(argv[3]);
+    Arguments parsedArgs = _getArguments(argc, argv);
 
-    MineField* minefield = createMineField(width, height, mineDensity);
+    MineField* minefield = createMineField(parsedArgs.width, parsedArgs.height, parsedArgs.mineDensity);
 
     GameResponse recentResponse = (GameResponse) {
         .gameOver=false,
@@ -30,7 +40,7 @@ int main(int argc, char* argv[]) {
         .moveSuccess=false,
     };
 
-    char inputBuffer[BUFFER_SIZE];
+    setupRendering();
 
     while (!recentResponse.gameOver) {
         renderFrame(minefield);
@@ -41,7 +51,27 @@ int main(int argc, char* argv[]) {
     }
 
     renderFrame(minefield);
+    teardownRendering();
     destroyMinefield(minefield);
 
     return 0;
+}
+
+
+bool _validateArguments(int argc, char* argv[]) {
+    if (argc != 4) {
+        printf("Usage: minesweeper <width> <height> <mine density>\n");
+        return false;
+    }
+
+    return true;
+}
+
+
+Arguments _getArguments(int argc, char* argv[]) {
+    return (Arguments) {
+        .width=atoi(argv[1]),
+        .height=atoi(argv[2]),
+        .mineDensity=atof(argv[3])
+    };
 }

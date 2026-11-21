@@ -14,6 +14,9 @@ GameResponse _explore(MineField*);
 bool _coordinateInBounds(const MineField*, const Coordinate);
 uint8_t _countSurroundingMines(const MineField*, const uint8_t);
 
+uint8_t _countUsedFlags(const MineField*);
+GameResponse _checkForWin(const MineField*);
+
 void _exploreSurroundingSquares(const MineField*, const Coordinate);
 void __recursiveExplore(const MineField*, const Coordinate);
 
@@ -183,47 +186,17 @@ GameResponse _explore(MineField* minefield) {
         _exploreSurroundingSquares(minefield, coordinate);
     }
 
-    return moveSuccess;
+    return _checkForWin(minefield);
 }
 
 
 GameResponse _toggleFlag(MineField* minefield) {
-    const GameResponse winResponse = (GameResponse) {
-        .gameOver=true,
-        .gameWon=true,
-        .moveSuccess=true,
-    };
-
-    const GameResponse inertResponse = (GameResponse) {
-        .gameOver=false,
-        .gameWon=false,
-        .moveSuccess=true,
-    };
-
     const Coordinate coordinate = minefield->selectedSquare;
     const uint8_t index = coordinateToIndex(minefield, coordinate);
 
-    if (minefield->fieldData[index].markedWithFlag) {
-        minefield->fieldData[index].markedWithFlag = false;
-        minefield->flagsUsed--;
+    minefield->fieldData[index].markedWithFlag = !minefield->fieldData[index].markedWithFlag;
 
-    } else if (minefield->flagsUsed < minefield->totalMines) {
-        minefield->fieldData[index].markedWithFlag = true;
-        minefield->flagsUsed++;
-
-    } else {
-        for (int i = 0; i < minefield->width * minefield->height; ++i) {
-            const MineSquare currentSquare = minefield->fieldData[i];
-
-            if (currentSquare.hasMine != currentSquare.markedWithFlag) {
-                return inertResponse;
-            }
-        }
-
-        return winResponse;
-    }
-
-    return inertResponse;
+    return _checkForWin(minefield);
 }
 
 
@@ -262,6 +235,31 @@ uint8_t _countSurroundingMines(const MineField* minefield, const uint8_t index) 
     }
 
     return totalMines;
+}
+
+
+GameResponse _checkForWin(const MineField* minefield) {
+    const GameResponse winResponse = (GameResponse) {
+        .gameOver=true,
+        .gameWon=true,
+        .moveSuccess=true,
+    };
+
+    const GameResponse inertResponse = (GameResponse) {
+        .gameOver=false,
+        .gameWon=false,
+        .moveSuccess=true,
+    };
+    
+    for (int i = 0; i < minefield->width * minefield->height; ++i) {
+        const MineSquare currentSquare = minefield->fieldData[i];
+
+        if (!currentSquare.hasBeenExplored || currentSquare.hasMine != currentSquare.markedWithFlag) {
+            return inertResponse;
+        }
+    }
+
+    return winResponse;
 }
 
 

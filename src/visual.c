@@ -2,8 +2,9 @@
 #include <visual.h>
 
 #include <stdio.h>
-#include <string.h>
 #include <termios.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 
 // Helpers
@@ -20,7 +21,24 @@ void _renderCell(const MineField*, const int, const int);
 void __printCell(const MineSquare);
 
 
+// Terminal State Object
+struct termios orig_termios;
+
+
+// Logic
+void setupRendering(void) {
+    _enableRawInput();
+}
+
+
+void teardownRendering(void) {
+    _disableRawInput();
+}
+
+
 void renderFrame(const MineField* minefield) {
+    printf("\x1b[H");
+
     for (int row = 0; row < minefield->height; ++row) {
         _renderRow(minefield, row);
     }
@@ -30,45 +48,66 @@ void renderFrame(const MineField* minefield) {
 
 
 UserInput getInput(void) {
-    char inputBuffer[32];
+    char pressedKey;
 
-    while (true) {
-        fgets(inputBuffer, 32, stdin);
-    
-        if (strcmp(inputBuffer, "UP\n") == 0) {
+    read(STDIN_FILENO, &pressedKey, 1);
+
+    switch (pressedKey) {
+        case 'w':
             return UP;
-        }
-    
-        if (strcmp(inputBuffer, "DOWN\n") == 0) {
+        
+        case 's':
             return DOWN;
-        }
-    
-        if (strcmp(inputBuffer, "LEFT\n") == 0) {
+
+        case 'a':
             return LEFT;
-        }
-    
-        if (strcmp(inputBuffer, "RIGHT\n") == 0) {
+
+        case 'd':
             return RIGHT;
-        }
-    
-        if (strcmp(inputBuffer, "EXPLORE\n") == 0) {
+
+        case 'e':
             return EXPLORE;
-        }
-    
-        if (strcmp(inputBuffer, "TOGGLE_FLAG\n") == 0) {
+
+        case 'f':
             return TOGGLE_FLAG;
-        }
-    
-        if (strcmp(inputBuffer, "QUIT\n") == 0) {
+
+        case 'q':
             return QUIT;
-        }
-    
-        printf("Unknown Command\n");
+
+        default:
+            return UP;
     }
 }
 
 
 // Helpers
+void _enableRawInput(void) {
+    tcgetattr(STDIN_FILENO, &orig_termios);
+    
+    atexit(_disableRawInput);
+
+    struct termios raw = orig_termios;
+
+    raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+    // raw.c_oflag &= ~(OPOST);
+    raw.c_cflag |= (CS8);
+    raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+
+    raw.c_cc[VMIN] = 1;
+    raw.c_cc[VTIME] = 0;
+
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
+
+    write(STDOUT_FILENO, "\x1b[?1049h", 8);
+}
+
+
+void _disableRawInput(void) {
+    write(STDOUT_FILENO, "\x1b[?1049l\x1b[?25h", 14);
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios);
+}
+
+
 void _renderRow(const MineField* minefield, const int row) {
     for (int col = 0; col < minefield->width; ++col) {
         _renderCell(minefield, row, col);
