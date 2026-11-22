@@ -18,7 +18,6 @@ uint8_t _countUsedFlags(const MineField*);
 GameResponse _checkForWin(const MineField*);
 
 void _exploreSurroundingSquares(const MineField*, const Coordinate);
-void __recursiveExplore(const MineField*, const Coordinate);
 
 
 // Memory
@@ -161,23 +160,18 @@ GameResponse _explore(MineField* minefield) {
         .moveSuccess=true,
     };
 
-    // Out of bounds
     if (!_coordinateInBounds(minefield, coordinate)) {
         return moveFailure;
     }
 
-    // we can grab a reference to that square now
     const MineSquare selectedSquare = minefield->fieldData[index];
 
-    // Already explored
     if (selectedSquare.hasBeenExplored) {
         return moveFailure;
     }
 
-    // set the real explored value to true
     minefield->fieldData[index].hasBeenExplored = true;
 
-    // YEEEOUCH
     if (selectedSquare.hasMine) {
         return hitMine;
     }
@@ -264,9 +258,18 @@ GameResponse _checkForWin(const MineField* minefield) {
 
 
 void _exploreSurroundingSquares(const MineField* minefield, const Coordinate coordinate) {
-    const int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    const int directions[8][2] = {
+        {0, 1},
+        {-1, 1},
+        {-1,0},
+        {-1, -1},
+        {0, -1},
+        {1, -1},
+        {1, 0},
+        {0, -1},
+    };
 
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 8; ++i) {
         const int* currentDirection = directions[i];
 
         const Coordinate newCoordinate = (Coordinate) {
@@ -274,40 +277,12 @@ void _exploreSurroundingSquares(const MineField* minefield, const Coordinate coo
             .col=coordinate.col + currentDirection[1],
         };
 
-        if (_coordinateInBounds(minefield, coordinate)) {
-            __recursiveExplore(minefield, newCoordinate);
-        }
-    }
-}
+        const uint8_t index = coordinateToIndex(minefield, newCoordinate);
 
+        const MineSquare square = minefield->fieldData[index];
 
-void __recursiveExplore(const MineField* minefield, const Coordinate coordinate) {
-    const uint32_t index = coordinateToIndex(minefield, coordinate);
-
-    MineSquare currentSquare = minefield->fieldData[index];
-
-    if (currentSquare.hasMine || currentSquare.hasBeenExplored) {
-        return;
-    }
-
-    minefield->fieldData[index].hasBeenExplored = true;
-
-    if (currentSquare.minesSurroundingCount > 0) {
-        return;
-    }
-
-    const int directions[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-
-    for (int i = 0; i < 4; ++i) {
-        const int* direction = directions[i];
-
-        Coordinate newCoordinate = (Coordinate) {
-            .row=coordinate.row + direction[0],
-            .col=coordinate.col + direction[1],
-        };
-
-        if (_coordinateInBounds(minefield, newCoordinate)) {
-            __recursiveExplore(minefield, newCoordinate);
+        if (_coordinateInBounds(minefield, newCoordinate) && square.minesSurroundingCount == 0) {
+            _exploreSurroundingSquares(minefield, newCoordinate);
         }
     }
 }

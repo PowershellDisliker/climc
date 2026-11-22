@@ -7,7 +7,6 @@ Author: Ryley Turner
 #include <game.h>
 #include <visual.h>
 
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
