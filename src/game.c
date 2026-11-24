@@ -258,6 +258,10 @@ GameResponse _checkForWin(const MineField* minefield) {
 
 
 void _exploreSurroundingSquares(const MineField* minefield, const Coordinate coordinate) {
+    const uint8_t currentIndex = coordinateToIndex(minefield, coordinate);
+
+    const MineSquare currentSquare = minefield->fieldData[currentIndex];
+
     const int directions[8][2] = {
         {0, 1},
         {-1, 1},
@@ -266,7 +270,7 @@ void _exploreSurroundingSquares(const MineField* minefield, const Coordinate coo
         {0, -1},
         {1, -1},
         {1, 0},
-        {0, -1},
+        {1, 1},
     };
 
     for (int i = 0; i < 8; ++i) {
@@ -277,11 +281,21 @@ void _exploreSurroundingSquares(const MineField* minefield, const Coordinate coo
             .col=coordinate.col + currentDirection[1],
         };
 
+        if (!_coordinateInBounds(minefield, newCoordinate)) {
+            continue;
+        }
+
         const uint8_t index = coordinateToIndex(minefield, newCoordinate);
 
         const MineSquare square = minefield->fieldData[index];
 
-        if (_coordinateInBounds(minefield, newCoordinate) && square.minesSurroundingCount == 0) {
+        if (square.hasBeenExplored) {
+            continue;
+        }
+        
+        minefield->fieldData[index].hasBeenExplored = true;
+
+        if (square.minesSurroundingCount == 0) {
             _exploreSurroundingSquares(minefield, newCoordinate);
         }
     }
